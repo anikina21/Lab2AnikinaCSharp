@@ -115,34 +115,63 @@ namespace Lab2Anikina.ViewModels
             IsEnabled = false;
             await Task.Run(() =>
             {
-                if (BirthDate.CompareTo(DateTime.Now) > 0)
+                try
                 {
-                    MessageBox.Show("Error\nHaven't been born yet?");
-
+                    PersonValidation();
                 }
-                else
-                if (DateTime.Now.Year - BirthDate.Year > 136)
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Error\nToo old to be true");
-
+                    MessageBox.Show(ex.Message);
+                    IsEnabled = true;
+                    return;
                 }
-                else
+                if (IsBirthday)
                 {
-                    if (IsBirthday)
-                    {
-                        MessageBox.Show("HAPPY BIRTHDAY!!!");
-                    }
-                    Task.Delay(2000).Wait();
+                    MessageBox.Show("HAPPY BIRTHDAY!!!");
+                }
+                Task.Delay(2000).Wait();
 
-                    Info1 = $"First name: {FirstName} \nLast name: {LastName}\n" +
+                Info1 = $"First name: {FirstName} \nLast name: {LastName}\n" +
                         $"Birthday: {BirthDate.Date.ToString("dd/MM/yyyy")} \nEmail: {Email}";
-                    Info2 = $"IsAdult: {IsAdult} \nSunSign: {SunSign}\n" +
+                Info2 = $"IsAdult: {IsAdult} \nSunSign: {SunSign}\n" +
                         $"ChineseSign: {ChineseSign} \nIsBirthday: {IsBirthday}";
-                }
+                
             });
             IsEnabled = true;
         }
 
+
+        private void PersonValidation()
+        {
+            if (BirthDate.CompareTo(DateTime.Now) > 0)
+            {
+                //MessageBox.Show("Error\nHaven't been born yet?");
+                throw new InvalidFutureDateException("Wrong date: birthday is in the future");
+
+            }
+
+            if (DateTime.Now.Year - BirthDate.Year > 136)
+            {
+                //MessageBox.Show("Error\nToo old to be true");
+                throw new TooOldDateException("Wrong date: birthday is too far in the past");
+            }
+
+            if (!Email.Contains('@'))
+            {
+                throw new InvalidEmailException("Invalid email");
+            }
+
+            if (!Char.IsUpper(FirstName[0]))
+            {
+                throw new NotCapsLetterAtStartException("Input error: firstname doesnt start with a capital letter.");
+            }
+
+            if (!Char.IsUpper(LastName[0]))
+            {
+                throw new NotCapsLetterAtStartException("Input error: lastname doesnt start with a capital letter.");
+            }
+
+        }
 
         private bool CanExecute(object obj)
         {
